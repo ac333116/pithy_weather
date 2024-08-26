@@ -1,7 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QMessageBox>>
+#include <QMessageBox>
 #include "weathertool.h"
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -12,17 +13,29 @@ MainWindow::MainWindow(QWidget *parent)
     WindowsInitialize();
     merberInitialize();
 
+
+    //加载配置
+    QSettings setting("config.ini", QSettings::IniFormat);
+    QString city_default = setting.value("city").toString();
+    if(city_default!="")
+        ui->search_lineEdit->setText(city_default);
+    else
+        ui->search_lineEdit->setText("北京");
+    on_search_lineEdit_returnPressed();
 }
 
 
 
 MainWindow::~MainWindow()
 {
+    //保存配置信息
+    QSettings setting("config.ini", QSettings::IniFormat);
+    setting.setValue("city",ostatus.city);
     delete ui;
 }
 
 
-
+//窗口初始化
 void MainWindow::WindowsInitialize()
 {
     //悬浮菜单初始化
@@ -44,7 +57,7 @@ void MainWindow::WindowsInitialize()
     //网络连接初始化
     myNetAccessManager = new QNetworkAccessManager(this);
     connect(myNetAccessManager,&QNetworkAccessManager::finished,this,&MainWindow::onReplied);
-    getWeatherInfo("101010100");
+    //getWeatherInfo("101010100");
 
     //cityMap初始化
     WeatherTool::loadCityMap();
@@ -53,7 +66,7 @@ void MainWindow::WindowsInitialize()
     ui->curve_label->installEventFilter(this);
 
 }
-
+//成员初始化
 void MainWindow::merberInitialize()
 {
     weekList<<ui->week1<<ui->week2<<ui->week3<<ui->week4<<ui->week5<<ui->week6<<ui->week7;
@@ -109,14 +122,11 @@ void MainWindow::merberInitialize()
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
     floatMenu->exec(QCursor::pos());
-
 }
-
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     myOffset = event->globalPos() - this->pos();
 }
-
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
     this->move(event->globalPos() - myOffset);
@@ -230,19 +240,19 @@ void MainWindow::loadUi()
         dateList[i]->setText(dayList[i].date.mid(6));
         typeIconList[i]->setPixmap(myTypeMap[dayList[i].type]);
         typeList[i]->setText(dayList[i].type);
-        if(dayList[i].airQuality<50){
+        if(dayList[i].airQuality<35){
             airList[i]->setText("优");
             airList[i]->setStyleSheet("background-color:rgb(60,200,0)");
         }
-        else if(dayList[i].airQuality<100){
+        else if(dayList[i].airQuality<75){
             airList[i]->setText("良");
             airList[i]->setStyleSheet("background-color:rgb(120,180,0)");
         }
-        else if(dayList[i].airQuality<150){
+        else if(dayList[i].airQuality<115){
             airList[i]->setText("轻度");
             airList[i]->setStyleSheet("background-color:rgb(160,140,0)");
         }
-        else if(dayList[i].airQuality<200){
+        else if(dayList[i].airQuality<150){
             airList[i]->setText("中度");
             airList[i]->setStyleSheet("background-color:rgb(200,100,0)");
         }
@@ -373,16 +383,20 @@ void MainWindow::paintCurve()
 }
 
 
-
+//搜索框回车
 void MainWindow::on_search_lineEdit_returnPressed()
 {
     QString city = ui->search_lineEdit->text();
     QString code = WeatherTool::getCityCode(city);
+    if(code==""){
+        city.remove(city.length() - 1, 1);
+        code = WeatherTool::getCityCode(city);
+    }
     if(code!=""){
         getWeatherInfo(code);
+        ui->search_lineEdit->setText("");
     }
 }
-
 void MainWindow::on_search_Button_clicked()
 {
     on_search_lineEdit_returnPressed();

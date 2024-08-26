@@ -14,7 +14,7 @@ public:
     static QMap<QString,QString>myCityMap;
 
     static void loadCityMap(){
-        QFile file("D:\\QT\\Projects\\weather\\weather\\city\\city_weather_code.json");
+        QFile file(":/city/city_weather_code.json");
         file.open(QIODevice::ReadOnly | QIODevice::Text);
         QByteArray bytearray = file.readAll();
         file.close();

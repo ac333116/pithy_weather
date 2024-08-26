@@ -1158,7 +1158,7 @@ QLabel{
 </string>
                    </property>
                    <property name="text">
-                    <string>北京</string>
+                    <string>未联网</string>
                    </property>
                   </widget>
                  </item>
@@ -1184,7 +1184,7 @@ QLabel{
 }</string>
                    </property>
                    <property name="text">
-                    <string>32</string>
+                    <string>0</string>
                    </property>
                   </widget>
                  </item>
@@ -1199,7 +1199,7 @@ QLabel{
 }</string>
                 </property>
                 <property name="text">
-                 <string>晴转多云       19~31</string>
+                 <string>晴转多云       0~0</string>
                 </property>
                </widget>
               </item>
